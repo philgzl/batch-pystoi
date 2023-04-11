@@ -3,7 +3,7 @@ import matlab.engine
 import numpy as np
 import scipy
 from numpy.testing import assert_allclose
-from pystoi.stoi import N_FRAME, NFFT, FS
+from batch_pystoi.stoi import N_FRAME, NFFT, FS
 
 ATOL = 1e-5
 
@@ -33,7 +33,7 @@ def test_fft():
 def test_resampy():
     """ Compare matlab and librosa resample : FAILING """
     from resampy import resample
-    from pystoi.stoi import FS
+    from batch_pystoi.stoi import FS
     import matlab_wrapper
     matlab = matlab_wrapper.MatlabSession()
     matlab.put('FS', float(FS))
@@ -51,7 +51,7 @@ def test_resampy():
 def test_nnresample():
     """ Compare matlab and nnresample resample : FAILING """
     from nnresample import resample
-    from pystoi.stoi import FS
+    from batch_pystoi.stoi import FS
     import matlab_wrapper
     matlab = matlab_wrapper.MatlabSession()
     matlab.put('FS', float(FS))

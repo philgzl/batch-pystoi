@@ -3,8 +3,8 @@ import matlab.engine
 import numpy as np
 import scipy
 from numpy.testing import assert_allclose
-from pystoi.stoi import stoi
-from pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE
+from batch_pystoi.stoi import stoi
+from batch_pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE
 
 RTOL = 1e-4
 ATOL = 1e-4
@@ -63,7 +63,7 @@ def test_stoi_upsample():
 def test_stoi_matlab_resample():
     """ Test STOI with any sampling frequency, where Matlab is doing
         all the resampling. Successful test."""
-    from pystoi.stoi import FS
+    from batch_pystoi.stoi import FS
     import matlab_wrapper
     matlab = matlab_wrapper.MatlabSession()
     matlab.workspace.cd('matlab/')

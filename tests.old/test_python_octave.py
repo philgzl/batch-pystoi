@@ -7,8 +7,8 @@ from oct2py import octave
 import pytest
 import scipy
 
-from pystoi.stoi import FS, N_FRAME, NFFT
-from pystoi.utils import resample_oct
+from batch_pystoi.stoi import FS, N_FRAME, NFFT
+from batch_pystoi.utils import resample_oct
 
 ATOL = 1e-5
 

@@ -3,8 +3,8 @@ import matlab.engine
 import numpy as np
 import scipy
 from numpy.testing import assert_allclose
-from pystoi.utils import thirdoct, stft, remove_silent_frames
-from pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE, OBM
+from batch_pystoi.utils import thirdoct, stft, remove_silent_frames
+from batch_pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE, OBM
 
 ATOL = 1e-5
 

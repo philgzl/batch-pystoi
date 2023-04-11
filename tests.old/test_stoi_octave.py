@@ -5,7 +5,7 @@ from numpy.testing import assert_allclose
 from oct2py import octave
 import pytest
 
-from pystoi.stoi import FS, stoi
+from batch_pystoi.stoi import FS, stoi
 
 RTOL = 1e-6
 ATOL = 1e-6
