@@ -12,6 +12,8 @@ This is a fork of [`pystoi`](https://github.com/mpariente/pystoi), the original 
 
 ## Benchmark
 
+The times below where obtained on an HP Elitebook 840 G6 with an Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz. The `extended` argument was set to `True`.
+
 <img src="assets/times.png" alt="times" width=400> <img src="assets/speed_improvements.png" alt="speed_improvements" width=400>
 
 ## Install
