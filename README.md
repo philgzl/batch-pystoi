@@ -7,7 +7,7 @@ This is a fork of [`pystoi`](https://github.com/mpariente/pystoi), the original 
 - `stoi` now accepts an extra `lengths` optional argument containing the original length of the waveforms before batching. This is useful if padding is performed to match the length of the waveforms in the batch, since the padding should not affect the STOI results. Note that simply padding with zeros hoping that the VAD will discard them without providing `lengths` is not enough, since the zeros can still leak onto the final frames of the original signal due to overlap-and-add.
 
 ## Tests
-- New tests under `tests/` extensively compare the outputs from the original `pystoi` implementation with the implementation here. Results show the two implementations are equivalent (except for all-zeros inputs as described abovez, which can be neglected).
+- New tests under `tests/` extensively compare the outputs from the original `pystoi` implementation with the implementation here. Results show the two implementations are equivalent (except for all-zeros inputs as described above, which can be neglected).
 - The original tests were moved to `tests.old/`. These tests use `matlab.engine` and require Python 2.7. I was unable to run the tests despite my efforts. So the reference now is the original `pystoi` implementation.
 
 ## Benchmark
