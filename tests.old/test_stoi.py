@@ -1,16 +1,16 @@
-import pytest
 import matlab.engine
 import numpy as np
-import scipy
+import pytest
 from numpy.testing import assert_allclose
-from batch_pystoi.stoi import stoi
-from batch_pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE
+
+from batch_pystoi.stoi import FS, stoi
 
 RTOL = 1e-4
 ATOL = 1e-4
 
 eng = matlab.engine.start_matlab()
 eng.cd('matlab/')
+
 
 def test_stoi_good_fs():
     """ Test STOI at sampling frequency of 10kHz. """
@@ -63,8 +63,9 @@ def test_stoi_upsample():
 def test_stoi_matlab_resample():
     """ Test STOI with any sampling frequency, where Matlab is doing
         all the resampling. Successful test."""
-    from batch_pystoi.stoi import FS
     import matlab_wrapper
+
+    from batch_pystoi.stoi import FS
     matlab = matlab_wrapper.MatlabSession()
     matlab.workspace.cd('matlab/')
     matlab.put('FS', float(FS))
@@ -79,8 +80,9 @@ def test_stoi_matlab_resample():
         x_r = matlab.get('x_r')
         y_r = matlab.get('y_r')
         stoi_out = stoi(x_r, y_r, FS)
-        stoi_out_m = matlab.eval('stoi_out_m = stoi(x_r, y_r, FS)')
-        assert_allclose(stoi_out, matlab.get('stoi_out_m'), atol=ATOL, rtol=RTOL)
+        stoi_out_m = matlab.eval('stoi_out_m = stoi(x_r, y_r, FS)')  # noqa: F841, E501
+        assert_allclose(stoi_out, matlab.get('stoi_out_m'), atol=ATOL,
+                        rtol=RTOL)
 
 
 """

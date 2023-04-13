@@ -10,8 +10,7 @@ import pytest
 from pystoi import stoi
 
 from batch_pystoi import stoi as batch_stoi
-from batch_pystoi.stoi import N_FRAME, HOP, N
-
+from batch_pystoi.stoi import HOP, N_FRAME, N
 
 BATCH_SIZE = 4
 

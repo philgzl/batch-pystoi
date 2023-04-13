@@ -1,10 +1,9 @@
 import argparse
-import timeit
 import itertools
+import timeit
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

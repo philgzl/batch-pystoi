@@ -11,8 +11,7 @@ import itertools
 import numpy as np
 import pytest
 
-from batch_pystoi.stoi import N_FRAME, N, HOP, stoi
-
+from batch_pystoi.stoi import HOP, N_FRAME, N, stoi
 
 BATCH_SIZE = 4
 

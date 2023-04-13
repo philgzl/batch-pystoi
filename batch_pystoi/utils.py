@@ -88,7 +88,7 @@ def stft(x, win_size, fft_size, overlap):
     # Arguments
         x : 1D array, the waveform
         win_size : integer, the size of the window and the signal frames
-        fft_size : integer, the size of the fft in samples (zero-padding or not)
+        fft_size : integer, the size of the fft in samples (after padding)
         overlap: integer, number of steps to make in fftsize
     # Returns
         stft_out : 2D complex array, the STFT of x.
@@ -107,19 +107,23 @@ def _overlap_and_add(x_frames, hop):
     segments = -(-framelen // hop)  # Divide and round up.
 
     # Pad the framelen dimension to segments * hop and add n=segments frames
-    signal = np.pad(x_frames, ((0, 0), (0, segments), (0, segments * hop - framelen)))
+    signal = np.pad(
+        x_frames, ((0, 0), (0, segments), (0, segments * hop - framelen))
+    )
 
     # Reshape to a 4D tensor, splitting the framelen dimension in two
     signal = signal.reshape((batch_size, num_frames + segments, segments, hop))
-    # Transpose dimensions so that signal.shape = (batch, segments, frame+segments, hop)
+    # Transpose dimensions so shape = (batch, segments, frame+segments, hop)
     signal = np.transpose(signal, [0, 2, 1, 3])
     # Reshape so that signal.shape = (batch, segments * (frame+segments), hop)
     signal = signal.reshape((batch_size, -1, hop))
 
-    # Now behold the magic!! Remove the last n=segments elements from the second axis
+    # Now behold the magic!! Remove last n=segments elements from second axis
     signal = signal[:, :-segments]
     # Reshape to (batch, segments, frame+segments-1, hop)
-    signal = signal.reshape((batch_size, segments, num_frames + segments - 1, hop))
+    signal = signal.reshape(
+        (batch_size, segments, num_frames + segments - 1, hop)
+    )
     # This has introduced a shift by one in all rows
 
     # Now, reduce over the columns and flatten the array to achieve the result
@@ -130,15 +134,16 @@ def _overlap_and_add(x_frames, hop):
 
 
 def segment_frames(x, mask, seg_size):
-    segments = np.array([x[:, m - seg_size: m] for m in range(seg_size, x.shape[1] + 1)])
-    segments = segments.transpose([1, 0, 2, 3])  # put back batch in the first dimension
+    segments = np.array([x[:, m - seg_size: m]
+                         for m in range(seg_size, x.shape[1] + 1)])
+    # put back batch in the first dimension
+    segments = segments.transpose([1, 0, 2, 3])
     return segments * mask[:, seg_size - 1:, None, None]
 
 
 def _mask_audio(x, mask):
-    return np.array([
-        np.pad(xi[mi], ((0, len(xi) - np.sum(mi)), (0, 0))) for xi, mi in zip(x, mask)
-    ])
+    return np.array([np.pad(xi[mi], ((0, len(xi) - np.sum(mi)), (0, 0)))
+                     for xi, mi in zip(x, mask)])
 
 
 def remove_silent_frames(x, y, dyn_range, framelen, hop):
@@ -153,24 +158,27 @@ def remove_silent_frames(x, y, dyn_range, framelen, hop):
         hop : Hop size for energy evaluation
     # Returns :
         x without the silent frames, zero-padded to the original length
-        y without the silent frames, zero-padded to the original length (aligned to x)
+        y without the silent frames, zero-padded to the original length
     """
     # Compute Mask
     w = np.hanning(framelen + 2)[1:-1]
 
-    x_frames = np.array(
-        [w * x[..., i : i + framelen] for i in range(0, x.shape[-1] - framelen, hop)]
-    ).transpose([1, 0, 2])
-    y_frames = np.array(
-        [w * y[..., i : i + framelen] for i in range(0, x.shape[-1] - framelen, hop)]
-    ).transpose([1, 0, 2])
+    x_frames = np.array([
+         w * x[..., i: i + framelen]
+         for i in range(0, x.shape[-1] - framelen, hop)
+    ]).transpose([1, 0, 2])
+    y_frames = np.array([
+        w * y[..., i: i + framelen]
+        for i in range(0, x.shape[-1] - framelen, hop)
+    ]).transpose([1, 0, 2])
 
     # Compute energies in dB
     x_energies = 20 * np.log10(np.linalg.norm(x_frames, axis=-1) + EPS)
 
     # Find boolean mask of energies lower than dynamic_range dB
     # with respect to maximum clean speech energy frame
-    mask = (np.nanmax(x_energies, axis=-1, keepdims=True) - dyn_range - x_energies) < 0
+    max_energies = np.nanmax(x_energies, axis=-1, keepdims=True)
+    mask = (max_energies - dyn_range - x_energies) < 0
 
     # Remove silent frames and pad with zeroes
     x_frames = _mask_audio(x_frames, mask)
@@ -187,8 +195,10 @@ def row_col_normalize(x):
     # input shape (batch, num_segments, seg_size, bands)
     # Row mean and variance normalization -- axis: seg_size
     x_normed = x - np.mean(x, axis=-2, keepdims=True)
-    x_normed = x_normed / (np.linalg.norm(x_normed, axis=-2, keepdims=True) + EPS)
+    x_normed = x_normed / \
+        (np.linalg.norm(x_normed, axis=-2, keepdims=True) + EPS)
     # Column mean and variance normalization -- axis: bands
     x_normed -= np.mean(x_normed, axis=-1, keepdims=True)
-    x_normed = x_normed / (np.linalg.norm(x_normed, axis=-1, keepdims=True) + EPS)
+    x_normed = x_normed / \
+        (np.linalg.norm(x_normed, axis=-1, keepdims=True) + EPS)
     return x_normed

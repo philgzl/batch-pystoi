@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 """Test utilities based on Octave"""
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from oct2py import octave
-import pytest
 
-from batch_pystoi.stoi import DYN_RANGE, FS, MINFREQ, N_FRAME, NFFT, NUMBAND, OBM
+from batch_pystoi.stoi import (DYN_RANGE, FS, MINFREQ, N_FRAME, NFFT, NUMBAND,
+                               OBM)
 from batch_pystoi.utils import remove_silent_frames, stft, thirdoct
 
 ATOL = 1e-5

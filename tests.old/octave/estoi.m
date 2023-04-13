@@ -187,5 +187,3 @@ end
 
 x_sil = x_sil(1:jj_o(end));
 y_sil = y_sil(1:jj_o(end));
-
-

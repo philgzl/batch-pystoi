@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from oct2py import octave
-import pytest
 
 from batch_pystoi.stoi import FS, stoi
 
 RTOL = 1e-6
 ATOL = 1e-6
+
 
 def test_stoi_good_fs():
     """ Test STOI at sampling frequency of 10kHz. """

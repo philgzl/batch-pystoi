@@ -1,5 +1,4 @@
-from setuptools import setup
-from setuptools import find_packages
+from setuptools import find_packages, setup
 
 with open("README.md", encoding='utf-8') as fh:
     long_description = fh.read()
@@ -7,7 +6,8 @@ with open("README.md", encoding='utf-8') as fh:
 setup(
     name='batch_pystoi',
     version='0.0.1',
-    description='Short Term Objective Intelligibility measure for batched inputs',
+    description=('Short Term Objective Intelligibility metric for batched '
+                 'inputs'),
     author='Manuel Pariente, Philippe Gonzalez',
     author_email='pariente.mnl@gmail.com, hello@philgzl.com',
     url='https://github.com/philgzl/batch-pystoi',
@@ -19,8 +19,6 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3'
     ],
     packages=find_packages()
