@@ -1,55 +1,79 @@
-# Python implementation of STOI
+# batch-pystoi
 
-Implementation of the classical and extended Short Term Objective Intelligibility measures
+This is a fork of [`pystoi`](https://github.com/mpariente/pystoi), the original python implementation of classical and extended Short Term Objective Intelligibility (STOI) metrics [1-3]. This fork adds support for batched inputs and substantially improves processing time. The original author expressed that [batched processing will not be implemented](https://github.com/mpariente/pystoi/issues/31#issuecomment-1262647150) in the original repository, despite the interest and [an open pull request](https://github.com/mpariente/pystoi/pull/28). So it was implemented here.
 
-Intelligibility measure which is highly correlated with the intelligibility of degraded speech signals, e.g., due to additive noise, single/multi-channel noise reduction, binary masking and vocoded speech as in CI simulations. The STOI-measure is intrusive, i.e., a function of the clean and degraded speech signals. STOI may be a good alternative to the speech intelligibility index (SII) or the speech transmission index (STI), when you are interested in the effect of nonlinear processing to noisy speech, e.g., noise reduction, binary masking algorithms, on speech intelligibility.   
-Description taken from [Cees Taal's website](http://www.ceestaal.nl/code/)
+## Notable changes
+- As pointed out in [this pull request](https://github.com/mpariente/pystoi/pull/28), the original implementation for the extended STOI uses expensive `np.random.standard_normal` calls to add noise to the signal before normalizing. However since the noise is then scaled very small, this does not change the results unless the inputs are all-zeros, in which case the STOI output is non-zero (which does not seem to make much sense anyway?). The `np.random.standard_normal` calls were removed here and for all-zero inputs the STOI output is zero. Note that any non-zero sample makes the VAD discard zeros, so the user should not worry about the different behavior in this very special case.
+- `stoi` now accepts an extra `lengths` optional argument containing the original length of the waveforms before batching. This is useful if padding is performed to match the length of the waveforms in the batch, since the padding should not affect the STOI results. Note that simply padding with zeros hoping that the VAD will discard them without providing `lengths` is not enough, since the zeros can still leak onto the final frames of the original signal due to overlap-and-add.
 
+## Tests
+- New tests under `tests/` extensively compare the outputs from the original `pystoi` implementation with the implementation here. Results show the two implementations are equivalent (except for all-zeros inputs as described abovez, which can be neglected).
+- The original tests were moved to `tests.old/`. These tests use `matlab.engine` and require Python 2.7. I was unable to run the tests despite my efforts. So the reference now is the original `pystoi` implementation.
 
-### Install
+## Benchmark
 
-`pip install pystoi` or
-`pip3 install pystoi`
+The times below where obtained on an HP Elitebook 840 G6 with an Intel(R) Core(TM) i7-8665U CPU @ 1.90GHz. The `extended` argument was set to `True`.
 
-### Usage
-```
+<img src="assets/times.png" alt="times" width=400> <img src="assets/speed_improvements.png" alt="speed_improvements" width=400>
+
+## Install
+
+`pip install batch-pystoi`
+
+## Usage
+
+### Same usage as in `pystoi`
+
+```python
 import soundfile as sf
-from pystoi import stoi
+from batch_pystoi import stoi
 
 clean, fs = sf.read('path/to/clean/audio')
 denoised, fs = sf.read('path/to/denoised/audio')
 
-# Clean and den should have the same length, and be 1D
+# clean and denoised must have same shape
+# they can be 1D (single-channel) or 2D (multi-channel) since stoi now supports batched inputs
+# swap axis from (samples, channels) to (channels, samples) if 2D
+clean, denoised = clean.T, denoised.T
+
+# compute stoi
 d = stoi(clean, denoised, fs, extended=False)
 ```
 
-### Matlab code & Testing
+### Using the `lengths` argument
 
-All the Matlab code in this repo is taken from or adapted from the code available [here](http://www.ceestaal.nl/code/) (STOI – Short-Time Objective Intelligibility Measure – ) written by Cees Taal.
+```python
+import soundfile as sf
+import numpy as np
+from batch_pystoi import stoi
 
-Thanks to Cees Taal who open-sourced his Matlab implementation and enabled thorough testing of this python code.
+clean_1, fs = sf.read('path/to/clean/audio/1')
+clean_2, fs = sf.read('path/to/clean/audio/2')
+denoised_1, fs = sf.read('path/to/denoised/audio/1')
+denoised_2, fs = sf.read('path/to/denoised/audio/2')
 
-If you want to run the tests, you will need Matlab, `matlab.engine` (install instructions [here](https://fr.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html)) and `matlab_wrapper` (install with `pip install matlab_wrapper`).
-The tests can only be ran under Python 2.7 as `matlab.engine` and `matlab_wrapper` are only compatible with Python2.7
-Tests are passing at relative and absolute tolerance of `1e-3`, which is enough for the considered application (all the variability is coming from the resampling method when signals are not natively sampled at 10kHz).
+# clean_1 and denoised_1 are 1D and have same length
+# clean_2 and denoised_2 are 1D and have same length
+# however clean_1 and clean_2 might have different lengths
+# we pad to match the lengths and allow batched processing
+max_length = max(clean_1.shape[-1], clean_2.shape[-1])
+clean_1 = np.pad(clean_1, (0, max_length - clean_1.shape[-1]))
+clean_2 = np.pad(clean_2, (0, max_length - clean_2.shape[-1]))
+denoised_1 = np.pad(denoised_1, (0, max_length - denoised_1.shape[-1]))
+denoised_2 = np.pad(denoised_2, (0, max_length - denoised_2.shape[-1]))
 
-Very big thanks to @gauss256 who translated all the matlab scripts to Octave, and wrote all the tests for it!
+# make the batch
+clean = np.stack([clean_1, clean_2])
+denoised = np.stack([denoised_1, denoised_2])
 
-### Contribute
+# store original lengths
+lengths = [clean_1.shape[-1], clean_2.shape[-1]]
 
-Any contribution are welcome~, specially to improve the execution speed of the code~ (thank you Przemek Pobrotyn for a 4x speed-up!) :
+# compute stoi
+d = stoi(clean, denoised, fs, extended=False, lengths=lengths)
+```
 
-* ~Improve the resampling method to match Matlab's resampling in `tests/`.~ This can be considered a solved issue thanks to @gauss256 !
-* Write tests for Python 3 (with [`transplant`](https://github.com/bastibe/transplant) for example)
-
-
-### References
-* [1] C.H.Taal, R.C.Hendriks, R.Heusdens, J.Jensen 'A Short-Time
-  Objective Intelligibility Measure for Time-Frequency Weighted Noisy Speech',
-  ICASSP 2010, Texas, Dallas.
-* [2] C.H.Taal, R.C.Hendriks, R.Heusdens, J.Jensen 'An Algorithm for
-  Intelligibility Prediction of Time-Frequency Weighted Noisy Speech',
-  IEEE Transactions on Audio, Speech, and Language Processing, 2011.
-* [3] J. Jensen and C. H. Taal, 'An Algorithm for Predicting the
-  Intelligibility of Speech Masked by Modulated Noise Maskers',
-  IEEE Transactions on Audio, Speech and Language Processing, 2016.
+## References
+* [1] C. H. Taal, R. C. Hendriks, R. Heusdens and J. Jensen "A short-time objective intelligibility measure for time-frequency weighted noisy speech", Proc. ICASSP, 2010.
+* [2] C. H. Taal, R. C. Hendriks, R. Heusdens and J.Jensen "An Algorithm for Intelligibility Prediction of Time–Frequency Weighted Noisy Speech", IEEE Trans. Audio, Speech, and Language Process., 2011.
+* [3] J. Jensen and C. H. Taal, "An Algorithm for Predicting the Intelligibility of Speech Masked by Modulated Noise Maskers", IEEE/ACM Trans Audio, Speech, and Language Process., 2016.

@@ -1,10 +1,11 @@
-import pytest
 import matlab.engine
 import numpy as np
-import scipy
+import pytest
 from numpy.testing import assert_allclose
-from pystoi.utils import thirdoct, stft, remove_silent_frames
-from pystoi.stoi import FS, N_FRAME, NFFT, NUMBAND, MINFREQ, N, BETA, DYN_RANGE, OBM
+
+from batch_pystoi.stoi import (DYN_RANGE, FS, MINFREQ, N_FRAME, NFFT, NUMBAND,
+                               OBM)
+from batch_pystoi.utils import remove_silent_frames, stft, thirdoct
 
 ATOL = 1e-5
 
@@ -56,7 +57,8 @@ def test_apply_OBM():
                                float(MINFREQ), nargout=2)
     x = np.random.randn(2*FS, )
     x_m = matlab.double(list(x))
-    x_tob_m = eng.applyOBM(x_m, obm_m, float(N_FRAME), float(NFFT), float(NUMBAND))
+    x_tob_m = eng.applyOBM(x_m, obm_m, float(N_FRAME), float(NFFT),
+                           float(NUMBAND))
     x_tob_m = np.array(x_tob_m)
     x_spec = stft(x, N_FRAME, NFFT, overlap=2).transpose()
     x_tob = np.zeros((NUMBAND, x_spec.shape[1]))

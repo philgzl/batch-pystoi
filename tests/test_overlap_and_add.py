@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-from pystoi.stoi import N_FRAME
-from pystoi.utils import _overlap_and_add
+from batch_pystoi.stoi import N_FRAME
+from batch_pystoi.utils import _overlap_and_add
 
 
 def test_OLA_vectorisation():
@@ -15,12 +15,17 @@ def test_OLA_vectorisation():
             x_sil[range(i * hop, i * hop + framelen)] += x_frames[i, :]
         return x_sil
 
+    batch_size = 4
     # Initialize
-    x = np.random.randn(1000 * N_FRAME)
+    x = np.random.randn(batch_size, 1000 * N_FRAME)
     # Add silence segment
-    silence = np.zeros(10 * N_FRAME)
-    x = np.concatenate([x[: 500 * N_FRAME], silence, x[500 * N_FRAME :]])
-    x = x.reshape([-1, N_FRAME])
-    xs = old_overlap_and_app(x, N_FRAME // 2)
+    silence = np.zeros((batch_size, 10 * N_FRAME))
+    x = np.concatenate([
+        x[:, : 500 * N_FRAME],
+        silence,
+        x[:, 500 * N_FRAME:]
+    ], axis=1)
+    x = x.reshape([batch_size, -1, N_FRAME])
+    xs = [old_overlap_and_app(xi, N_FRAME // 2) for xi in x]
     xs_vectorise = _overlap_and_add(x, N_FRAME // 2)
     assert_allclose(xs, xs_vectorise)

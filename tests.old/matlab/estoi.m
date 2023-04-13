@@ -134,14 +134,14 @@ cf          = cf(1:numBands);
 %%
 function x_stdft = stdft(x, N, K, N_fft)
 %   X_STDFT = X_STDFT(X, N, K, N_FFT) returns the short-time
-%	  hanning-windowed dft of X with frame-size N, overlap K and DFT size
+%	hanning-windowed dft of X with frame-size N, overlap K and DFT size
 %   N_FFT. The columns and rows of X_STDFT denote the frame-index and
 %   dft-bin index, respectively.
 
 frames      = 1:K:(length(x)-N);
 x_stdft     = zeros(length(frames), N_fft);
 
-w           = ml_hanning(N);
+w           = hanning(N);
 x           = x(:);
 
 for i = 1:length(frames)
@@ -161,7 +161,7 @@ x       = x(:);
 y       = y(:);
 
 frames  = 1:K:(length(x)-N);
-w       = ml_hanning(N);
+w       = hanning(N);
 msk     = zeros(size(frames));
 
 for j = 1:length(frames)
@@ -187,5 +187,3 @@ end
 
 x_sil = x_sil(1:jj_o(end));
 y_sil = y_sil(1:jj_o(end));
-
-

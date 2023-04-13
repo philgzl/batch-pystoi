@@ -1,7 +1,7 @@
 function d = estoi(x, y, fs_signal)
 %   d = estoi(x, y, fs_signal) returns the output of the extended short-time
 %   objective intelligibility (ESTOI) predictor.
-%  
+%
 % Implementation of the Extended Short-Time Objective
 % Intelligibility (ESTOI) predictor, described in Jesper Jensen and
 % Cees H. Taal, "An Algorithm for Predicting the Intelligibility of
@@ -17,8 +17,8 @@ function d = estoi(x, y, fs_signal)
 %        d: intelligibility index
 %
 %
-% Copyright 2016: Aalborg University, Section for Signal and Information Processing. 
-% The software is free for non-commercial use. 
+% Copyright 2016: Aalborg University, Section for Signal and Information Processing.
+% The software is free for non-commercial use.
 % The software comes WITHOUT ANY WARRANTY.
 
 
@@ -71,11 +71,11 @@ for m=N:size(X,2)
     Y_seg  	= Y(:, (m-N+1):m); % region of length N with processed TF-units for all j
     X_seg = X_seg + eps*randn(size(X_seg)); % to avoid divide by zero
     Y_seg = Y_seg + eps*randn(size(Y_seg)); % to avoid divide by zero
-    
+
     %% first normalize rows (to give \bar{S}_m)
     XX = X_seg - mean(X_seg.').'*ones(1,N); % normalize rows to zero mean
     YY = Y_seg - mean(Y_seg.').'*ones(1,N); % normalize rows to zero mean
-    
+
     YY = diag(1./sqrt(diag(YY*YY')))*YY; % normalize rows to unit length
     XX = diag(1./sqrt(diag(XX*XX')))*XX; % normalize rows to unit length
 
@@ -119,7 +119,7 @@ for i = 1:(length(cf))
   [a b]                   = min((f-fl(i)).^2);
   fl(i)                   = f(b);
   fl_ii                   = b;
-  
+
   [a b]                   = min((f-fr(i)).^2);
   fr(i)                   = f(b);
   fr_ii                   = b;
@@ -134,14 +134,14 @@ cf          = cf(1:numBands);
 %%
 function x_stdft = stdft(x, N, K, N_fft)
 %   X_STDFT = X_STDFT(X, N, K, N_FFT) returns the short-time
-%	hanning-windowed dft of X with frame-size N, overlap K and DFT size
+%	  hanning-windowed dft of X with frame-size N, overlap K and DFT size
 %   N_FFT. The columns and rows of X_STDFT denote the frame-index and
 %   dft-bin index, respectively.
 
 frames      = 1:K:(length(x)-N);
 x_stdft     = zeros(length(frames), N_fft);
 
-w           = hanning(N);
+w           = ml_hanning(N);
 x           = x(:);
 
 for i = 1:length(frames)
@@ -161,7 +161,7 @@ x       = x(:);
 y       = y(:);
 
 frames  = 1:K:(length(x)-N);
-w       = hanning(N);
+w       = ml_hanning(N);
 msk     = zeros(size(frames));
 
 for j = 1:length(frames)
@@ -187,5 +187,3 @@ end
 
 x_sil = x_sil(1:jj_o(end));
 y_sil = y_sil(1:jj_o(end));
-
-

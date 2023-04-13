@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """ Unit tests for Octave """
 import numpy as np
-from numpy.testing import assert_allclose
-from oct2py import octave
 import pytest
 import scipy
+from numpy.testing import assert_allclose
+from oct2py import octave
 
-from pystoi.stoi import FS, N_FRAME, NFFT
-from pystoi.utils import resample_oct
+from batch_pystoi.stoi import FS, N_FRAME, NFFT
+from batch_pystoi.utils import resample_oct
 
 ATOL = 1e-5
+
 
 def test_hanning():
     """ Compare scipy and Matlab hanning window.
