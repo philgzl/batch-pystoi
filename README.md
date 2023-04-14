@@ -1,6 +1,6 @@
 # batch-pystoi
 
-This is a fork of [`pystoi`](https://github.com/mpariente/pystoi), the original python implementation of classical and extended Short Term Objective Intelligibility (STOI) metrics [1-3]. This fork adds support for batched inputs and substantially improves processing time. The original author expressed that [batched processing will not be implemented](https://github.com/mpariente/pystoi/issues/31#issuecomment-1262647150) in the original repository, despite the interest and [an open pull request](https://github.com/mpariente/pystoi/pull/28). So it was implemented here.
+This is a fork of [`pystoi`](https://github.com/mpariente/pystoi), the original python implementation of classical and extended Short Term Objective Intelligibility (STOI) metrics [1-3]. This fork adds support for batched inputs and substantially improves processing time. The original author expressed that [batched processing will not be implemented](https://github.com/mpariente/pystoi/issues/31#issuecomment-1262647150) in the original repository, despite the interest and [an open pull request](https://github.com/mpariente/pystoi/pull/28). So it was implemented here. Thanks to [@giamic](https://github.com/giamic) for providing the groundwork for this fork in that pull request.
 
 ## Notable changes
 - As pointed out in [this pull request](https://github.com/mpariente/pystoi/pull/28), the original implementation for the extended STOI uses expensive `np.random.standard_normal` calls to add noise to the signal before normalizing. However since the noise is then scaled very small, this does not change the results unless the inputs are all-zeros, in which case the STOI output is non-zero (which does not seem to make much sense anyway?). The `np.random.standard_normal` calls were removed here and for all-zero inputs the STOI output is zero. Note that any non-zero sample makes the VAD discard zeros, so the user should not worry about the different behavior in this very special case.
@@ -74,6 +74,6 @@ d = stoi(clean, denoised, fs, extended=False, lengths=lengths)
 ```
 
 ## References
-* [1] C. H. Taal, R. C. Hendriks, R. Heusdens and J. Jensen "A short-time objective intelligibility measure for time-frequency weighted noisy speech", Proc. ICASSP, 2010.
-* [2] C. H. Taal, R. C. Hendriks, R. Heusdens and J.Jensen "An Algorithm for Intelligibility Prediction of Time–Frequency Weighted Noisy Speech", IEEE Trans. Audio, Speech, and Language Process., 2011.
+* [1] C. H. Taal, R. C. Hendriks, R. Heusdens and J. Jensen, "A short-time objective intelligibility measure for time-frequency weighted noisy speech", Proc. ICASSP, 2010.
+* [2] C. H. Taal, R. C. Hendriks, R. Heusdens and J. Jensen, "An Algorithm for Intelligibility Prediction of Time–Frequency Weighted Noisy Speech", IEEE Trans. Audio, Speech, and Language Process., 2011.
 * [3] J. Jensen and C. H. Taal, "An Algorithm for Predicting the Intelligibility of Speech Masked by Modulated Noise Maskers", IEEE/ACM Trans Audio, Speech, and Language Process., 2016.
