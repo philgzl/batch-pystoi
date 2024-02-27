@@ -83,6 +83,14 @@ def thirdoct(fs, nfft, num_bands, min_freq):
     return obm, cf
 
 
+def unfold(x, win_len, hop_len, axis=-1):
+    # unfold with eventual last frame discarded as in MATLAB implementation
+    n_frames = (x.shape[axis] - win_len - 1) // hop_len + 1
+    idx = np.add.outer(np.arange(n_frames) * hop_len, np.arange(win_len))
+    out = np.take(x, idx, axis=axis)
+    return np.moveaxis(out, axis % x.ndim, 0)
+
+
 def stft(x, win_size, fft_size, overlap):
     """ Short-time Fourier transform for real 1-D inputs
     # Arguments
@@ -95,8 +103,7 @@ def stft(x, win_size, fft_size, overlap):
     """
     hop = int(win_size / overlap)
     w = np.hanning(win_size + 2)[1: -1]  # = matlab.hanning(win_size)
-    frames = np.array([x[:, i:i + win_size]
-                       for i in range(0, x.shape[-1] - win_size, hop)])
+    frames = unfold(x, win_size, hop)
     stft_out = np.fft.rfft(frames*w, n=fft_size)
     return stft_out.transpose([1, 0, 2])
 
@@ -163,14 +170,15 @@ def remove_silent_frames(x, y, dyn_range, framelen, hop):
     # Compute Mask
     w = np.hanning(framelen + 2)[1:-1]
 
-    x_frames = np.array([
-         w * x[..., i: i + framelen]
-         for i in range(0, x.shape[-1] - framelen, hop)
-    ]).transpose([1, 0, 2])
-    y_frames = np.array([
-        w * y[..., i: i + framelen]
-        for i in range(0, x.shape[-1] - framelen, hop)
-    ]).transpose([1, 0, 2])
+    x_frames = unfold(x, framelen, hop) * w
+    y_frames = unfold(y, framelen, hop) * w
+
+    if x_frames.shape[0] == 0:
+        raise RuntimeError("Input is too short to fit a single frame, got "
+                           f"input shape {x.shape} after eventual resampling")
+
+    x_frames = x_frames.transpose([1, 0, 2])
+    y_frames = y_frames.transpose([1, 0, 2])
 
     # Compute energies in dB
     x_energies = 20 * np.log10(np.linalg.norm(x_frames, axis=-1) + EPS)

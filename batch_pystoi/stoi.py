@@ -112,7 +112,7 @@ def stoi(x, y, fs_sig, extended=False, lengths=None):
     if np.any(not_enough):
         warnings.warn('Not enough STFT frames to compute intermediate '
                       'intelligibility measure after removing silent '
-                      'frames. Returning 1e-5. Please check you wav files',
+                      'frames. Returning 1e-5.',
                       RuntimeWarning)
         if np.all(not_enough):
             return np.full(x.shape[0], 1e-5)
