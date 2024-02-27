@@ -129,7 +129,7 @@ def _overlap_and_add(x_frames, hop):
     # Now, reduce over the columns and flatten the array to achieve the result
     signal = np.sum(signal, axis=1)
     end = (num_frames - 1) * hop + framelen
-    signal = signal.reshape((batch_size, -1))[:end]
+    signal = signal.reshape((batch_size, -1))[:, :end]
     return signal
 
 
