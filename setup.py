@@ -5,7 +5,7 @@ with open("README.md", encoding='utf-8') as fh:
 
 setup(
     name='batch_pystoi',
-    version='0.0.2',
+    version='0.0.3',
     description=('Short Term Objective Intelligibility metric for batched '
                  'inputs'),
     author='Manuel Pariente, Philippe Gonzalez',
